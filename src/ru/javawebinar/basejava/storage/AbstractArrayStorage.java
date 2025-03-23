@@ -10,12 +10,14 @@ public abstract class AbstractArrayStorage implements Storage {
     protected Resume[] storage = new Resume[STORAGE_LIMIT];
     protected int size = 0;
 
-    public void clear() {
+    @Override
+    public final void clear() {
         Arrays.fill(storage, 0, size, null);
         size = 0;
     }
 
-    public void save(Resume r) {
+    @Override
+    public final void save(Resume r) {
         if (size >= STORAGE_LIMIT) {
             System.out.println("Хранилище переполнено. Невозможно сохранить резюме с uuid " + r.getUuid());
             return;
@@ -29,7 +31,8 @@ public abstract class AbstractArrayStorage implements Storage {
         size++;
     }
 
-    public Resume get(String uuid) {
+    @Override
+    public final Resume get(String uuid) {
         int index = getIndex(uuid);
         if (index < 0) {
             System.out.println("Резюме с uuid " + uuid + " не найдено.");
@@ -38,7 +41,8 @@ public abstract class AbstractArrayStorage implements Storage {
         return storage[index];
     }
 
-    public void update(Resume resume) {
+    @Override
+    public final void update(Resume resume) {
         int index = getIndex(resume.getUuid());
         if (index < 0) {
             System.out.println("Резюме с uuid " + resume.getUuid() + " не найдено для обновления.");
@@ -48,7 +52,8 @@ public abstract class AbstractArrayStorage implements Storage {
         System.out.println("Резюме с uuid " + resume.getUuid() + " обновлено.");
     }
 
-    public void delete(String uuid) {
+    @Override
+    public final void delete(String uuid) {
         int index = getIndex(uuid);
         if (index < 0) {
             System.out.println("Резюме с uuid " + uuid + " не найдено.");
