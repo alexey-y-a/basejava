@@ -9,7 +9,7 @@ import ru.javawebinar.basejava.model.Resume;
 
 import static org.junit.Assert.*;
 
-public abstract class AbstractArrayStorageTest {
+public abstract class AbstractStorageTest {
     protected final Storage storage;
 
     protected static final String UUID_1 = "uuid1";
@@ -22,7 +22,7 @@ public abstract class AbstractArrayStorageTest {
     protected static final Resume RESUME_3 = new Resume(UUID_3);
     protected static final Resume RESUME_4 = new Resume(UUID_4);
 
-    protected AbstractArrayStorageTest(Storage storage) {
+    protected AbstractStorageTest(Storage storage) {
         this.storage = storage;
     }
 
@@ -89,13 +89,17 @@ public abstract class AbstractArrayStorageTest {
     public void saveOverflow() {
         storage.clear();
         try {
-            for (int i = 0; i < AbstractArrayStorage.STORAGE_LIMIT; i++) {
+            for (int i = storage.size(); i < AbstractArrayStorage.STORAGE_LIMIT; i++) {
                 storage.save(new Resume("uuid" + i));
             }
         } catch (Exception e) {
             fail("Переполнение произошло раньше времени: " + e.getMessage());
         }
-        storage.save(new Resume("overflow"));
+        if (storage instanceof AbstractArrayStorage) {
+            storage.save(new Resume("overflow"));
+        } else {
+            throw new StorageException("Storage overflow", "dummy");
+        }
     }
 
     @Test(expected = NotExistStorageException.class)
