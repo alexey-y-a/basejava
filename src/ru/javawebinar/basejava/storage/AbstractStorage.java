@@ -4,96 +4,63 @@ import ru.javawebinar.basejava.exception.ExistStorageException;
 import ru.javawebinar.basejava.exception.NotExistStorageException;
 import ru.javawebinar.basejava.model.Resume;
 
+import java.util.Collections;
 import java.util.List;
 
 public abstract class AbstractStorage implements Storage {
 
-    protected abstract Object getSearchKey(Resume r);
+    protected abstract Object getSearchKey(String uuid);
     protected abstract boolean isExist(Object searchKey);
     protected abstract void doUpdate(Resume r, Object searchKey);
     protected abstract void doSave(Resume r, Object searchKey);
     protected abstract Resume doGet(Object searchKey);
     protected abstract void doDelete(Object searchKey);
-
-    @Override
-    public abstract List<Resume> getAllSorted();
+    protected abstract List<Resume> doCopyAll();
 
     @Override
     public void update(Resume r) {
-        Object searchKey = getExistedSearchKey(r);
+        Object searchKey = getExistedSearchKey(r.getUuid());
         doUpdate(r, searchKey);
     }
 
     @Override
     public void save(Resume r) {
-        Object searchKey = getNotExistedSearchKey(r);
+        Object searchKey = getNotExistedSearchKey(r.getUuid());
         doSave(r, searchKey);
     }
 
     @Override
-    public void delete(String key) {
-        Resume r = (this instanceof MapFullNameStorage) ? getResumeByFullName(key) : getResumeByUuid(key);
-        if (r == null) {
-            throw new NotExistStorageException(key);
-        }
-        Object searchKey = getExistedSearchKey(r);
+    public void delete(String uuid) {
+        Object searchKey = getExistedSearchKey(uuid);
         doDelete(searchKey);
     }
 
     @Override
-    public Resume get(String key) {
-        Object searchKey = getExistedSearchKeyForGet(key);
+    public Resume get(String uuid) {
+        Object searchKey = getExistedSearchKey(uuid);
         return doGet(searchKey);
     }
 
-    private Object getExistedSearchKey(Resume r) {
-        Object searchKey = getSearchKey(r);
+    private Object getExistedSearchKey(String uuid) {
+        Object searchKey = getSearchKey(uuid);
         if (!isExist(searchKey)) {
-            throw new NotExistStorageException(r.getUuid());
+            throw new NotExistStorageException(uuid);
         }
         return searchKey;
     }
 
-    private Object getNotExistedSearchKey(Resume r) {
-        Object searchKey = getSearchKey(r);
+    private Object getNotExistedSearchKey(String uuid) {
+        Object searchKey = getSearchKey(uuid);
         if (isExist(searchKey)) {
-            throw new ExistStorageException(r.getUuid());
+            throw new ExistStorageException(uuid);
         }
         return searchKey;
     }
 
-    private Object getExistedSearchKeyForGet(String key) {
-        if (this instanceof MapFullNameStorage) {
-            for (Resume r : getAllSorted()) {
-                if (r.getFullName().equals(key)) {
-                    return getSearchKey(r);
-                }
-            }
-        } else {
-            for (Resume r : getAllSorted()) {
-                if (r.getUuid().equals(key)) {
-                    return getSearchKey(r);
-                }
-            }
-        }
-        throw new NotExistStorageException(key);
-    }
-
-    private Resume getResumeByUuid(String uuid) {
-        for (Resume r : getAllSorted()) {
-            if (r.getUuid().equals(uuid)) {
-                return r;
-            }
-        }
-        return null;
-    }
-
-    private Resume getResumeByFullName(String fullName) {
-        for (Resume r : getAllSorted()) {
-            if (r.getFullName().equals(fullName)) {
-                return r;
-            }
-        }
-        return null;
+    @Override
+    public List<Resume> getAllSorted() {
+        List<Resume> list = doCopyAll();
+        Collections.sort(list);
+        return list;
     }
 }

@@ -6,6 +6,7 @@ import ru.javawebinar.basejava.exception.ExistStorageException;
 import ru.javawebinar.basejava.exception.NotExistStorageException;
 import ru.javawebinar.basejava.model.Resume;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -25,14 +26,6 @@ public abstract class AbstractStorageTest {
 
     protected AbstractStorageTest(Storage storage) {
         this.storage = storage;
-    }
-
-    protected void assertGet(Resume r) {
-        if (storage instanceof MapFullNameStorage) {
-            assertEquals(r, storage.get(r.getFullName()));
-        } else {
-            assertEquals(r, storage.get(r.getUuid()));
-        }
     }
 
     protected void assertSize(int size) {
@@ -63,18 +56,14 @@ public abstract class AbstractStorageTest {
     public void update() {
         Resume newResume = new Resume(UUID_1, "Name1 Updated");
         storage.update(newResume);
-        if (storage instanceof MapFullNameStorage) {
-            assertSame(newResume, storage.get("Name1 Updated"));
-        } else {
-            assertSame(newResume, storage.get(UUID_1));
-        }
+        assertEquals(newResume, storage.get(UUID_1));
     }
 
     @Test
     public void get() {
-        assertGet(RESUME_1);
-        assertGet(RESUME_2);
-        assertGet(RESUME_3);
+        assertEquals(RESUME_1, storage.get(UUID_1));
+        assertEquals(RESUME_2, storage.get(UUID_2));
+        assertEquals(RESUME_3, storage.get(UUID_3));
     }
 
     @Test
@@ -86,7 +75,7 @@ public abstract class AbstractStorageTest {
     public void save() {
         storage.save(RESUME_4);
         assertSize(4);
-        assertGet(RESUME_4);
+        assertEquals(RESUME_4, storage.get(UUID_4));
     }
 
     @Test
@@ -102,17 +91,9 @@ public abstract class AbstractStorageTest {
 
     @Test
     public void delete() {
-        if (storage instanceof MapFullNameStorage) {
-            storage.delete("Name1");
-        } else {
-            storage.delete(UUID_1);
-        }
+        storage.delete(UUID_1);
         assertSize(2);
-        if (storage instanceof MapFullNameStorage) {
-            assertThrows(NotExistStorageException.class, () -> storage.get("Name1"));
-        } else {
-            assertThrows(NotExistStorageException.class, () -> storage.get(UUID_1));
-        }
+        assertThrows(NotExistStorageException.class, () -> storage.get(UUID_1));
     }
 
     @Test
@@ -124,8 +105,6 @@ public abstract class AbstractStorageTest {
     public void getAllSorted() throws Exception {
         List<Resume> result = storage.getAllSorted();
         assertEquals(3, result.size());
-        assertTrue(result.contains(RESUME_1));
-        assertTrue(result.contains(RESUME_2));
-        assertTrue(result.contains(RESUME_3));
+        assertEquals(Arrays.asList(RESUME_1, RESUME_2, RESUME_3), result);
     }
 }

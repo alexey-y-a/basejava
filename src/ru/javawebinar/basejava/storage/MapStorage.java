@@ -3,14 +3,17 @@ package ru.javawebinar.basejava.storage;
 import ru.javawebinar.basejava.exception.ExistStorageException;
 import ru.javawebinar.basejava.model.Resume;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class MapStorage extends AbstractStorage {
     private final Map<String, Resume> map = new HashMap<>();
 
     @Override
-    protected Object getSearchKey(Resume r) {
-        return r.getUuid();
+    protected String getSearchKey(String uuid) {
+        return uuid;
     }
 
     @Override
@@ -47,10 +50,8 @@ public class MapStorage extends AbstractStorage {
     }
 
     @Override
-    public List<Resume> getAllSorted() {
-        List<Resume> list = new ArrayList<>(map.values());
-        list.sort(Comparator.comparing(Resume::getFullName).thenComparing(Resume::getUuid));
-        return list;
+    protected List<Resume> doCopyAll() {
+        return new ArrayList<>(map.values());
     }
 
     @Override
