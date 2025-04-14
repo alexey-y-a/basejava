@@ -1,6 +1,5 @@
 package ru.javawebinar.basejava.storage;
 
-import ru.javawebinar.basejava.exception.ExistStorageException;
 import ru.javawebinar.basejava.model.Resume;
 
 import java.util.ArrayList;
@@ -28,9 +27,6 @@ public class MapStorage extends AbstractStorage {
 
     @Override
     protected void doSave(Resume r, Object searchKey) {
-        if (map.containsKey(r.getUuid())) {
-            throw new ExistStorageException(r.getUuid());
-        }
         map.put((String) searchKey, r);
     }
 
