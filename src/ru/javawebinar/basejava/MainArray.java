@@ -43,7 +43,11 @@ public class MainArray {
                     printAll();
                     break;
                 case "update":
-                    r = new Resume(param, params[2]);
+                    if (params.length < 2) {
+                        System.out.println("Неверная команда: укажите uuid для обновления.");
+                        break;
+                    }
+                    r = new Resume(param);
                     ARRAY_STORAGE.update(r);
                     printAll();
                     break;
