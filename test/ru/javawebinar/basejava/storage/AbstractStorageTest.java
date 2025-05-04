@@ -2,6 +2,7 @@ package ru.javawebinar.basejava.storage;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import ru.javawebinar.basejava.ResumeTestData;
 import ru.javawebinar.basejava.exception.ExistStorageException;
 import ru.javawebinar.basejava.exception.NotExistStorageException;
 import ru.javawebinar.basejava.model.Resume;
@@ -19,10 +20,10 @@ public abstract class AbstractStorageTest {
     protected static final String UUID_3 = "uuid3";
     protected static final String UUID_4 = "uuid4";
 
-    protected static final Resume RESUME_1 = new Resume(UUID_1, "Name1");
-    protected static final Resume RESUME_2 = new Resume(UUID_2, "Name2");
-    protected static final Resume RESUME_3 = new Resume(UUID_3, "Name3");
-    protected static final Resume RESUME_4 = new Resume(UUID_4, "Name4");
+    protected static final Resume RESUME_1 = ResumeTestData.createResume(UUID_1, "Name1");
+    protected static final Resume RESUME_2 = ResumeTestData.createResume(UUID_2, "Name2");
+    protected static final Resume RESUME_3 = ResumeTestData.createResume(UUID_3, "Name3");
+    protected static final Resume RESUME_4 = ResumeTestData.createResume(UUID_4, "Name4");
 
     protected AbstractStorageTest(Storage storage) {
         this.storage = storage;
@@ -54,7 +55,7 @@ public abstract class AbstractStorageTest {
 
     @Test
     public void update() {
-        Resume newResume = new Resume(UUID_1, "Name1 Updated");
+        Resume newResume = ResumeTestData.createResume(UUID_1, "Name1 Updated");
         storage.update(newResume);
         assertEquals(newResume, storage.get(UUID_1));
     }
@@ -86,7 +87,7 @@ public abstract class AbstractStorageTest {
     @Test
     public void updateNotExist() {
         assertThrows(NotExistStorageException.class, () ->
-                storage.update(new Resume("dummy", "Dummy Name")));
+                storage.update(ResumeTestData.createResume("dummy", "Dummy Name")));
     }
 
     @Test
