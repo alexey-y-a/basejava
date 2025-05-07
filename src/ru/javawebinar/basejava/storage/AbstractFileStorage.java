@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public abstract class AbstractFileStorage extends AbstractStorage {
+public abstract class AbstractFileStorage extends AbstractStorage<File> {
     private final File directory;
 
     protected AbstractFileStorage(File directory) {
@@ -28,44 +28,44 @@ public abstract class AbstractFileStorage extends AbstractStorage {
     }
 
     @Override
-    protected boolean isExist(Object searchKey) {
-        return ((File) searchKey).exists();
+    protected boolean isExist(File searchKey) {
+        return (searchKey).exists();
     }
 
     @Override
-    protected void doUpdate(Resume r, Object searchKey) {
+    protected void doUpdate(Resume r, File searchKey) {
         try {
-            doWrite(r, (File) searchKey);
+            doWrite(r, searchKey);
         } catch (IOException e) {
             throw new StorageException("File write error", r.getUuid(), e);
         }
     }
 
     @Override
-    protected void doSave(Resume r, Object searchKey) {
-        File file = (File) searchKey;
+    protected void doSave(Resume r, File searchKey) {
+        File file = searchKey;
         try {
             if (!file.createNewFile()) {
                 throw new StorageException("File already exists", file.getName());
             }
+            doWrite(r, file);
         } catch (IOException e) {
             throw new StorageException("Couldn't create file " + file.getAbsolutePath(), file.getName(), e);
         }
-        doUpdate(r, searchKey);
     }
 
     @Override
-    protected Resume doGet(Object searchKey) {
+    protected Resume doGet(File searchKey) {
         try {
-            return doRead((File) searchKey);
+            return doRead(searchKey);
         } catch (IOException e) {
-            throw new StorageException("File read error", ((File) searchKey).getName(), e);
+            throw new StorageException("File read error", searchKey.getName(), e);
         }
     }
 
     @Override
-    protected void doDelete(Object searchKey) {
-        File file = (File) searchKey;
+    protected void doDelete(File searchKey) {
+        File file = searchKey;
         if (!file.delete()) {
             throw new StorageException("File delete error", file.getName());
         }
@@ -87,10 +87,11 @@ public abstract class AbstractFileStorage extends AbstractStorage {
     @Override
     public void clear() {
         File[] files = directory.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                doDelete(file);
-            }
+        if (files == null) {
+            throw new StorageException("Directory read error", null);
+        }
+        for (File file : files) {
+            doDelete(file);
         }
     }
 
