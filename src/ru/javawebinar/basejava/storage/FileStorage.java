@@ -10,13 +10,17 @@ public class FileStorage extends AbstractFileStorage {
         super(directory);
     }
 
+    public FileStorage(File directory, AbstractFileStorage.SerializationStrategy strategy) {
+        super(directory, strategy);
+    }
+
     @Override
     protected void doWrite(Resume r, File file) throws IOException {
-        super.doWrite(r, file);
+        strategy.write(r, file);
     }
 
     @Override
     protected Resume doRead(File file) throws IOException {
-        return super.doRead(file);
+        return strategy.read(file);
     }
 }
