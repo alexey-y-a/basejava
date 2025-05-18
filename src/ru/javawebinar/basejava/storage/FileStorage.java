@@ -13,7 +13,7 @@ import java.util.Objects;
 
 public class FileStorage extends AbstractStorage<File> {
     private final File directory;
-    protected final SerializationStrategy strategy;
+    private final SerializationStrategy strategy;
 
     protected FileStorage(File directory) {
         this(directory, new ObjectStreamSerialization());
@@ -22,13 +22,18 @@ public class FileStorage extends AbstractStorage<File> {
     protected FileStorage(File directory, SerializationStrategy strategy) {
         Objects.requireNonNull(directory, "directory must not be null");
         Objects.requireNonNull(strategy, "strategy must not be null");
+        this.directory = directory;
+        if (!directory.exists()) {
+            if (!directory.mkdirs()) {
+                throw new StorageException("Failed to create directory " + directory.getAbsolutePath());
+            }
+        }
         if (!directory.isDirectory()) {
             throw new IllegalArgumentException(directory.getAbsolutePath() + " is not directory");
         }
         if (!directory.canRead() || !directory.canWrite()) {
             throw new IllegalArgumentException(directory.getAbsolutePath() + " is not readable/writable");
         }
-        this.directory = directory;
         this.strategy = strategy;
     }
 
@@ -42,18 +47,10 @@ public class FileStorage extends AbstractStorage<File> {
         return (searchKey).exists();
     }
 
-    protected void doWrite(Resume r, File file) throws IOException {
-        strategy.write(r, file);
-    }
-
-    protected Resume doRead(File file) throws IOException {
-        return strategy.read(file);
-    }
-
     @Override
     protected void doUpdate(Resume r, File searchKey) {
         try {
-            doWrite(r, searchKey);
+            strategy.write(r, searchKey);
         } catch (IOException e) {
             throw new StorageException("File write error", r.getUuid(), e);
         }
@@ -65,16 +62,16 @@ public class FileStorage extends AbstractStorage<File> {
             if (!searchKey.createNewFile()) {
                 throw new StorageException("File already exists", searchKey.getName());
             }
-            doWrite(r, searchKey);
         } catch (IOException e) {
-            throw new StorageException("File write error ", r.getUuid(), e);
+            throw new StorageException("Couldn't create file " + searchKey.getAbsolutePath(), searchKey.getName(), e);
         }
+        doUpdate(r, searchKey);
     }
 
     @Override
     protected Resume doGet(File searchKey) {
         try {
-            return doRead(searchKey);
+            return strategy.read(searchKey);
         } catch (IOException e) {
             throw new StorageException("File read error", searchKey.getName(), e);
         }

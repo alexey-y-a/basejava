@@ -2,7 +2,6 @@ package ru.javawebinar.basejava.storage;
 
 import ru.javawebinar.basejava.exception.StorageException;
 import ru.javawebinar.basejava.model.Resume;
-import ru.javawebinar.basejava.storage.serializer.ObjectStreamSerialization;
 import ru.javawebinar.basejava.storage.serializer.SerializationStrategy;
 
 import java.io.IOException;
@@ -16,10 +15,6 @@ import java.util.stream.Stream;
 public class PathStorage extends AbstractStorage<Path> {
     private final Path directory;
     private final SerializationStrategy strategy;
-
-    public PathStorage(String dir) {
-        this(dir, new ObjectStreamSerialization());
-    }
 
     public PathStorage(String dir, SerializationStrategy strategy) {
         Objects.requireNonNull(dir, "directory must not be null");
@@ -74,11 +69,7 @@ public class PathStorage extends AbstractStorage<Path> {
         } catch (IOException e) {
             throw new StorageException("Couldn't create path " + path, getFileName(path), e);
         }
-        try {
-            strategy.write(r, path.toFile());
-        } catch (IOException e) {
-            throw new StorageException("Path write error", r.getUuid(), e);
-        }
+        doUpdate(r, path);
     }
 
     @Override
