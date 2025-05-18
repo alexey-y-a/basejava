@@ -10,11 +10,11 @@ import java.io.File;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ObjectStreamPathStorageTest extends AbstractStorageTest {
+public class PathStorageTest extends AbstractStorageTest {
     private static final File STORAGE_DIR = new File("path_storage");
 
-    public ObjectStreamPathStorageTest() {
-        super(new ObjectStreamPathStorage(STORAGE_DIR.getAbsolutePath(), new ObjectStreamSerialization()));
+    public PathStorageTest() {
+        super(new PathStorage(STORAGE_DIR.getAbsolutePath(), new ObjectStreamSerialization()));
     }
 
     @BeforeEach

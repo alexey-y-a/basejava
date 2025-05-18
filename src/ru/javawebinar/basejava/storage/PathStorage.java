@@ -13,15 +13,15 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class ObjectStreamPathStorage extends AbstractStorage<Path> {
+public class PathStorage extends AbstractStorage<Path> {
     private final Path directory;
-    private SerializationStrategy strategy;
+    private final SerializationStrategy strategy;
 
-    public ObjectStreamPathStorage(String dir) {
+    public PathStorage(String dir) {
         this(dir, new ObjectStreamSerialization());
     }
 
-    public ObjectStreamPathStorage(String dir, SerializationStrategy strategy) {
+    public PathStorage(String dir, SerializationStrategy strategy) {
         Objects.requireNonNull(dir, "directory must not be null");
         Objects.requireNonNull(strategy, "strategy must not be null");
         this.directory = Path.of(dir);
@@ -71,9 +71,13 @@ public class ObjectStreamPathStorage extends AbstractStorage<Path> {
     protected void doSave(Resume r, Path path) {
         try {
             Files.createFile(path);
-            strategy.write(r, path.toFile());
         } catch (IOException e) {
             throw new StorageException("Couldn't create path " + path, getFileName(path), e);
+        }
+        try {
+            strategy.write(r, path.toFile());
+        } catch (IOException e) {
+            throw new StorageException("Path write error", r.getUuid(), e);
         }
     }
 
