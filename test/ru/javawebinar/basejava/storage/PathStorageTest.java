@@ -4,7 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.javawebinar.basejava.exception.StorageException;
 import ru.javawebinar.basejava.model.Resume;
-import ru.javawebinar.basejava.storage.serializer.ObjectStreamSerialization;
+import ru.javawebinar.basejava.storage.serializer.DataStreamSerializer;
 
 import java.io.File;
 
@@ -14,7 +14,7 @@ public class PathStorageTest extends AbstractStorageTest {
     private static final File STORAGE_DIR = new File("path_storage");
 
     public PathStorageTest() {
-        super(new PathStorage(STORAGE_DIR.getAbsolutePath(), new ObjectStreamSerialization()));
+        super(new PathStorage(STORAGE_DIR.getAbsolutePath(), new DataStreamSerializer()));
     }
 
     @BeforeEach
@@ -26,7 +26,7 @@ public class PathStorageTest extends AbstractStorageTest {
     }
 
     @Test
-    public void testObjectStreamSerialization() {
+    public void testDataStreamSerialization() {
         Resume savedResume = storage.get(UUID_1);
         assertEquals(RESUME_1, savedResume, "Сохранённое резюме не совпадает с исходным");
     }

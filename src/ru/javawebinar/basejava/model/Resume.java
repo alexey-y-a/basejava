@@ -46,6 +46,14 @@ public class Resume implements Serializable {
         return sections.get(type);
     }
 
+    public Map<ContactType, String> getContacts() {
+        return contacts;
+    }
+
+    public Map<SectionType, Section> getSections() {
+        return sections;
+    }
+
     public void setContact(ContactType type, String value) {
         if (value == null) {
             contacts.remove(type);

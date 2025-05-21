@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import ru.javawebinar.basejava.ResumeTestData;
 import ru.javawebinar.basejava.exception.StorageException;
 import ru.javawebinar.basejava.model.Resume;
+import ru.javawebinar.basejava.storage.serializer.DataStreamSerializer;
 
 import java.io.File;
 
@@ -14,7 +15,7 @@ public class FileStorageTest extends  AbstractStorageTest {
     private static final File STORAGE_DIR = new File("file_storage");
 
     public FileStorageTest() {
-        super(new FileStorage(STORAGE_DIR));
+        super(new FileStorage(STORAGE_DIR, new DataStreamSerializer()));
     }
 
     @BeforeEach
@@ -33,28 +34,28 @@ public class FileStorageTest extends  AbstractStorageTest {
     }
 
     @Test
-    public void testSaveAndGet() {
+    public void testSaveAndGetWithDataStream() {
         assertEquals(RESUME_1, storage.get(UUID_1));
         assertEquals(RESUME_2, storage.get(UUID_2));
         assertEquals(RESUME_3, storage.get(UUID_3));
     }
 
     @Test
-    public void testUpdate() {
+    public void testUpdateWithDataStream() {
         Resume updatedResume = ResumeTestData.createResume(UUID_1, "Name1 Updated");
         storage.update(updatedResume);
         assertEquals(updatedResume, storage.get(UUID_1));
     }
 
     @Test
-    public void testDelete() {
+    public void testDeleteWithDataStream() {
         storage.delete(UUID_1);
         assertSize(2);
         assertThrows(StorageException.class, () -> storage.get(UUID_1));
     }
 
     @Test
-    public void testReadNonExistentFile() {
+    public void testReadNonExistentFileWithDataStream() {
         StorageException thrown = assertThrows(StorageException.class, () -> storage.get("non_existent_uuid"));
         assertNotNull(thrown, "Должно быть выброшено исключение при чтении несуществующего файла");
     }
