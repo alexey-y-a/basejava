@@ -20,7 +20,7 @@ public class MainStreams {
         boolean isSumOdd = sum % 2 != 0;
 
         return integers.stream()
-                .filter(x -> isSumOdd ? x % 2 == 0 : x % 2 != 0)
+                .filter(x -> isSumOdd == (x % 2 == 0))
                 .collect(Collectors.toList());
     }
 
