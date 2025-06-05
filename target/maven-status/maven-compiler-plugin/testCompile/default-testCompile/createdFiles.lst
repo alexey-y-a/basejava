@@ -1,0 +1,11 @@
+ru/javawebinar/basejava/storage/SqlStorageTest.class
+ru/javawebinar/basejava/storage/AbstractArrayStorageTest.class
+ru/javawebinar/basejava/storage/AllStorageTest.class
+ru/javawebinar/basejava/storage/MapStorageTest.class
+ru/javawebinar/basejava/storage/FileStorageTest.class
+ru/javawebinar/basejava/storage/MapResumeStorageTest.class
+ru/javawebinar/basejava/storage/AbstractStorageTest.class
+ru/javawebinar/basejava/storage/ArrayStorageTest.class
+ru/javawebinar/basejava/storage/PathStorageTest.class
+ru/javawebinar/basejava/storage/ListStorageTest.class
+ru/javawebinar/basejava/storage/SortedArrayStorageTest.class
