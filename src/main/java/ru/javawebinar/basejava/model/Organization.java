@@ -70,6 +70,10 @@ public class Organization implements Serializable {
             this.description = description;
         }
 
+        public Position(LocalDate startDate, LocalDate endDate, String title) {
+            this(startDate, endDate, title, null);
+        }
+
         public LocalDate getStartDate() {
             return startDate;
         }
