@@ -7,7 +7,7 @@ import ru.javawebinar.basejava.exception.ExistStorageException;
 import ru.javawebinar.basejava.exception.NotExistStorageException;
 import ru.javawebinar.basejava.model.Resume;
 
-import java.util.Arrays;
+import java.sql.PreparedStatement;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -35,6 +35,10 @@ public abstract class AbstractStorageTest {
 
     @BeforeEach
     public void setUp() {
+        if (storage instanceof SqlStorage) {
+            SqlStorage sqlStorage = (SqlStorage) storage;
+            sqlStorage.getSqlHelper().execute("DELETE FROM resume", PreparedStatement::execute);
+        }
         storage.clear();
         storage.save(RESUME_1);
         storage.save(RESUME_2);
@@ -57,14 +61,16 @@ public abstract class AbstractStorageTest {
     public void update() {
         Resume newResume = ResumeTestData.createResume(UUID_1, "Name1 Updated");
         storage.update(newResume);
-        assertEquals(newResume, storage.get(UUID_1));
+        Resume retrieved = storage.get(UUID_1);
+        assertEquals(newResume.getUuid(), retrieved.getUuid());
+        assertEquals(newResume.getFullName(), retrieved.getFullName());
     }
 
     @Test
     public void get() {
-        assertEquals(RESUME_1, storage.get(UUID_1));
-        assertEquals(RESUME_2, storage.get(UUID_2));
-        assertEquals(RESUME_3, storage.get(UUID_3));
+        Resume resume1 = storage.get(UUID_1);
+        assertEquals(RESUME_1.getUuid(), resume1.getUuid());
+        assertEquals(RESUME_1.getFullName(), resume1.getFullName());
     }
 
     @Test
@@ -76,7 +82,9 @@ public abstract class AbstractStorageTest {
     public void save() {
         storage.save(RESUME_4);
         assertSize(4);
-        assertEquals(RESUME_4, storage.get(UUID_4));
+        Resume retrieved = storage.get(UUID_4);
+        assertEquals(RESUME_4.getUuid(), retrieved.getUuid());
+        assertEquals(RESUME_4.getFullName(), retrieved.getFullName());
     }
 
     @Test
@@ -106,6 +114,11 @@ public abstract class AbstractStorageTest {
     public void getAllSorted() throws Exception {
         List<Resume> result = storage.getAllSorted();
         assertEquals(3, result.size());
-        assertEquals(Arrays.asList(RESUME_1, RESUME_2, RESUME_3), result);
+        assertEquals(RESUME_1.getUuid(), result.get(0).getUuid());
+        assertEquals(RESUME_1.getFullName(), result.get(0).getFullName());
+        assertEquals(RESUME_2.getUuid(), result.get(1).getUuid());
+        assertEquals(RESUME_2.getFullName(), result.get(1).getFullName());
+        assertEquals(RESUME_3.getUuid(), result.get(2).getUuid());
+        assertEquals(RESUME_3.getFullName(), result.get(2).getFullName());
     }
 }

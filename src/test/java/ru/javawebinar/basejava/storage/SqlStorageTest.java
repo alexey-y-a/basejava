@@ -2,6 +2,9 @@ package ru.javawebinar.basejava.storage;
 
 import org.junit.jupiter.api.Test;
 import ru.javawebinar.basejava.Config;
+import ru.javawebinar.basejava.model.Resume;
+
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -19,6 +22,8 @@ public class SqlStorageTest extends AbstractStorageTest {
 
     @Test
     void testSpecificSqlStorage() {
-        assertEquals(3, storage.size());
+        Resume testResume = new Resume(UUID.randomUUID().toString(), "Test Name");
+        storage.save(testResume);
+        assertEquals(4, storage.size());
     }
 }
