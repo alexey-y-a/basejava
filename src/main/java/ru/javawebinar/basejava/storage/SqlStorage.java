@@ -1,25 +1,26 @@
 package ru.javawebinar.basejava.storage;
 
-import ru.javawebinar.basejava.exception.ExistStorageException;
 import ru.javawebinar.basejava.exception.NotExistStorageException;
 import ru.javawebinar.basejava.exception.StorageException;
 import ru.javawebinar.basejava.model.Resume;
 import ru.javawebinar.basejava.sql.SqlHelper;
-
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SqlStorage implements Storage {
+
     private final SqlHelper sqlHelper;
 
     public SqlStorage(String dbUrl, String dbUser, String dbPassword) {
-        this.sqlHelper = new SqlHelper(dbUrl, dbUser, dbPassword);
-    }
-
-    public SqlHelper getSqlHelper() {
-        return sqlHelper;
+        try {
+            this.sqlHelper = new SqlHelper(DriverManager.getConnection(dbUrl, dbUser, dbPassword));
+        } catch (SQLException e) {
+            throw new StorageException("Unable to establish connection", e);
+        }
     }
 
     @Override
@@ -56,14 +57,7 @@ public class SqlStorage implements Storage {
         sqlHelper.execute("INSERT INTO resume (uuid, full_name) VALUES (?, ?)", ps -> {
             ps.setString(1, r.getUuid().trim());
             ps.setString(2, r.getFullName().trim());
-            try {
-                ps.executeUpdate();
-            } catch (org.postgresql.util.PSQLException e) {
-                if (e.getSQLState().equals("23505")) {
-                    throw new ExistStorageException(r.getUuid());
-                }
-                throw new StorageException("Database error", e);
-            }
+            ps.executeUpdate();
             return null;
         });
     }
@@ -98,4 +92,5 @@ public class SqlStorage implements Storage {
             return rs.next() ? rs.getInt(1) : 0;
         });
     }
+
 }

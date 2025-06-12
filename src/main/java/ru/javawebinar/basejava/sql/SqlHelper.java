@@ -1,28 +1,29 @@
 package ru.javawebinar.basejava.sql;
 
+import ru.javawebinar.basejava.exception.ExistStorageException;
 import ru.javawebinar.basejava.exception.StorageException;
-
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class SqlHelper {
-    private final String dbUrl;
-    private final String dbUser;
-    private final String dbPassword;
 
-    public SqlHelper(String dbUrl, String dbUser, String dbPassword) {
-        this.dbUrl = dbUrl;
-        this.dbUser = dbUser;
-        this.dbPassword = dbPassword;
+    private final Connection connection;
+
+    public SqlHelper(Connection connection) {
+        this.connection = connection;
+        if (connection == null) {
+            throw new StorageException("Connection is null");
+        }
     }
 
     public <T> T execute(String sql, SqlExecutor<T> executor) {
-        try (Connection conn = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
             return executor.execute(ps);
         } catch (SQLException e) {
+            if (e.getSQLState() != null && e.getSQLState().equals("23505")) {
+                throw new ExistStorageException("Duplicate UUID: " + e.getMessage(), e);
+            }
             throw new StorageException("SQL error: " + e.getMessage(), e);
         }
     }
@@ -31,4 +32,5 @@ public class SqlHelper {
     public interface SqlExecutor<T> {
         T execute(PreparedStatement ps) throws SQLException;
     }
+
 }

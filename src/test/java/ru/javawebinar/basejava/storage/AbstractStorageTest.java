@@ -7,7 +7,6 @@ import ru.javawebinar.basejava.exception.ExistStorageException;
 import ru.javawebinar.basejava.exception.NotExistStorageException;
 import ru.javawebinar.basejava.model.Resume;
 
-import java.sql.PreparedStatement;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -35,10 +34,6 @@ public abstract class AbstractStorageTest {
 
     @BeforeEach
     public void setUp() {
-        if (storage instanceof SqlStorage) {
-            SqlStorage sqlStorage = (SqlStorage) storage;
-            sqlStorage.getSqlHelper().execute("DELETE FROM resume", PreparedStatement::execute);
-        }
         storage.clear();
         storage.save(RESUME_1);
         storage.save(RESUME_2);
@@ -121,4 +116,5 @@ public abstract class AbstractStorageTest {
         assertEquals(RESUME_3.getUuid(), result.get(2).getUuid());
         assertEquals(RESUME_3.getFullName(), result.get(2).getFullName());
     }
+
 }
