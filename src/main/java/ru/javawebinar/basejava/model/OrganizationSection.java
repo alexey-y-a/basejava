@@ -151,11 +151,16 @@ public class OrganizationSection extends Section implements Serializable {
         if (!(startDateObj instanceof List)) {
             throw new IllegalArgumentException("startDate must be a List, but was: " + startDateObj.getClass().getName() + " in map: " + posMap);
         }
-        List<Integer> startDateList = (List<Integer>) startDateObj;
+        @SuppressWarnings("unchecked")
+        List<Number> startDateList = (List<Number>) startDateObj;
         if (startDateList.size() != 3) {
-            throw new IllegalArgumentException("startDate must contain exactly 3 integers (year, month, day), but was: " + startDateList + " in map: " + posMap);
+            throw new IllegalArgumentException("startDate must contain exactly 3 numbers (year, month, day), but was: " + startDateList + " in map: " + posMap);
         }
-        LocalDate startDate = LocalDate.of(startDateList.get(0), startDateList.get(1), startDateList.get(2));
+        LocalDate startDate = LocalDate.of(
+                startDateList.get(0).intValue(),
+                startDateList.get(1).intValue(),
+                startDateList.get(2).intValue()
+        );
 
         Object endDateObj = posMap.get("endDate");
         if (endDateObj == null) {
@@ -164,11 +169,16 @@ public class OrganizationSection extends Section implements Serializable {
         if (!(endDateObj instanceof List)) {
             throw new IllegalArgumentException("endDate must be a List, but was: " + endDateObj.getClass().getName() + " in map: " + posMap);
         }
-        List<Integer> endDateList = (List<Integer>) endDateObj;
+        @SuppressWarnings("unchecked")
+        List<Number> endDateList = (List<Number>) endDateObj;
         if (endDateList.size() != 3) {
-            throw new IllegalArgumentException("endDate must contain exactly 3 integers (year, month, day), but was: " + endDateList + " in map: " + posMap);
+            throw new IllegalArgumentException("endDate must contain exactly 3 numbers (year, month, day), but was: " + endDateList + " in map: " + posMap);
         }
-        LocalDate endDate = LocalDate.of(endDateList.get(0), endDateList.get(1), endDateList.get(2));
+        LocalDate endDate = LocalDate.of(
+                endDateList.get(0).intValue(),
+                endDateList.get(1).intValue(),
+                endDateList.get(2).intValue()
+        );
 
         Object titleObj = posMap.get("title");
         if (titleObj == null) {
