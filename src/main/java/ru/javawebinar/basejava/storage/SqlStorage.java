@@ -25,12 +25,7 @@ public class SqlStorage implements Storage {
 
     @Override
     public void clear() {
-        sqlHelper.transactionalExecute(conn -> {
-            conn.prepareStatement("DELETE FROM section").execute();
-            conn.prepareStatement("DELETE FROM contact").execute();
-            conn.prepareStatement("DELETE FROM resume").execute();
-            return null;
-        });
+        sqlHelper.execute("DELETE FROM resume");
     }
 
     @Override
@@ -91,15 +86,11 @@ public class SqlStorage implements Storage {
     @Override
     public void save(Resume r) {
         sqlHelper.transactionalExecute(conn -> {
-            sqlHelper.execute(
-                    "INSERT INTO resume (uuid, full_name) VALUES (?, ?)",
-                    ps -> {
-                        ps.setString(1, r.getUuid().trim());
-                        ps.setString(2, r.getFullName().trim());
-                        ps.executeUpdate();
-                        return null;
-                    }
-            );
+            try (PreparedStatement ps = conn.prepareStatement("INSERT INTO resume (uuid, full_name) VALUES (?, ?)")) {
+                ps.setString(1, r.getUuid().trim());
+                ps.setString(2, r.getFullName().trim());
+                ps.execute();
+            }
             insertContacts(conn, r);
             insertSections(conn, r);
             return null;
@@ -108,23 +99,16 @@ public class SqlStorage implements Storage {
 
     @Override
     public void delete(String uuid) {
-        sqlHelper.transactionalExecute(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("DELETE FROM section WHERE resume_uuid = ?")) {
-                ps.setString(1, uuid);
-                ps.execute();
-            }
-            try (PreparedStatement ps = conn.prepareStatement("DELETE FROM contact WHERE resume_uuid = ?")) {
-                ps.setString(1, uuid);
-                ps.execute();
-            }
-            try (PreparedStatement ps = conn.prepareStatement("DELETE FROM resume WHERE uuid = ?")) {
-                ps.setString(1, uuid);
-                if (ps.executeUpdate() == 0) {
-                    throw new NotExistStorageException(uuid);
+        sqlHelper.execute(
+                "DELETE FROM resume WHERE uuid = ?",
+                ps -> {
+                    ps.setString(1, uuid);
+                    if (ps.executeUpdate() == 0) {
+                        throw new NotExistStorageException(uuid);
+                    }
+                    return null;
                 }
-            }
-            return null;
-        });
+        );
     }
 
     @Override
