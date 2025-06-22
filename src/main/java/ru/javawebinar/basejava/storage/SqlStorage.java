@@ -78,6 +78,7 @@ public class SqlStorage implements Storage {
             }
             deleteContacts(conn, r.getUuid());
             insertContacts(conn, r);
+            deleteSections(conn, r.getUuid());
             insertSections(conn, r);
             return null;
         });
