@@ -120,24 +120,18 @@ public class SqlStorage implements Storage {
             try (PreparedStatement ps = conn.prepareStatement("SELECT * FROM resume ORDER BY full_name, uuid")) {
                 ResultSet rs = ps.executeQuery();
                 while (rs.next()) {
-                    String uuid = rs.getString("uuid");
-                    resumes.put(uuid, new Resume(uuid, rs.getString("full_name")));
+                    String uuid = rs.getString("uuid").trim();
+                    resumes.put(uuid, new Resume(uuid, rs.getString("full_name").trim()));
                 }
             }
 
             try (PreparedStatement ps = conn.prepareStatement("SELECT * FROM contact")) {
                 ResultSet rs = ps.executeQuery();
                 while (rs.next()) {
-                    Resume r = resumes.get(rs.getString("resume_uuid"));
-                    addContact(rs, r);
-                }
-            }
-
-            try (PreparedStatement ps = conn.prepareStatement("SELECT * FROM section")) {
-                ResultSet rs = ps.executeQuery();
-                while (rs.next()) {
-                    Resume r = resumes.get(rs.getString("resume_uuid"));
-                    addSection(rs, r);
+                    Resume r = resumes.get(rs.getString("resume_uuid").trim());
+                    if (r != null) {
+                        addContact(rs, r);
+                    }
                 }
             }
 
@@ -168,9 +162,13 @@ public class SqlStorage implements Storage {
     private void insertSections(Connection conn, Resume r) throws SQLException {
         try (PreparedStatement ps = conn.prepareStatement("INSERT INTO section (resume_uuid, type, content) VALUES (?, ?, ?)")) {
             for (var e : r.getSections().entrySet()) {
+                SectionType type = e.getKey();
+                if (type == SectionType.EXPERIENCE || type == SectionType.EDUCATION) {
+                    continue;
+                }
                 ps.setString(1, r.getUuid().trim());
-                ps.setString(2, e.getKey().name());
-                Class<? extends Section> clazz = getSectionClass(e.getKey());
+                ps.setString(2, type.name());
+                Class<? extends Section> clazz = getSectionClass(type);
                 String jsonContent = JsonParser.write(e.getValue(), clazz);
                 ps.setString(3, jsonContent);
                 ps.addBatch();
@@ -187,11 +185,8 @@ public class SqlStorage implements Storage {
             case ACHIEVEMENT:
             case QUALIFICATIONS:
                 return ListSection.class;
-            case EXPERIENCE:
-            case EDUCATION:
-                return OrganizationSection.class;
             default:
-                throw new IllegalArgumentException("Unknown section type: " + type);
+                throw new IllegalArgumentException("Unsupported section type: " + type);
         }
     }
 
@@ -220,7 +215,21 @@ public class SqlStorage implements Storage {
         String content = rs.getString("content");
         if (content != null) {
             SectionType type = SectionType.valueOf(rs.getString("type").trim());
-            r.setSection(type, Section.fromMap(type.name(), JsonParser.GSON.fromJson(content, Map.class)));
+            if (type == SectionType.EXPERIENCE || type == SectionType.EDUCATION) {
+                return;
+            }
+            switch (type) {
+                case PERSONAL:
+                case OBJECTIVE:
+                    r.setSection(type, JsonParser.read(content, TextSection.class));
+                    break;
+                case ACHIEVEMENT:
+                case QUALIFICATIONS:
+                    r.setSection(type, JsonParser.read(content, ListSection.class));
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unsupported section type: " + type);
+            }
         }
     }
 

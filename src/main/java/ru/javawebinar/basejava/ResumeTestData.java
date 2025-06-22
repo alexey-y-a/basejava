@@ -2,7 +2,6 @@ package ru.javawebinar.basejava;
 
 import ru.javawebinar.basejava.model.*;
 
-import java.time.LocalDate;
 import java.util.Arrays;
 
 public class ResumeTestData {
@@ -31,21 +30,6 @@ public class ResumeTestData {
                 "Version control: Git",
                 "DB: PostgreSQL, Oracle, MySQL, SQL",
                 "Родной русский, английский \"Intermediate\""
-        )));
-
-        resume.setSection(SectionType.EXPERIENCE, new OrganizationSection(Arrays.asList(
-                new Organization("OOO", null, Arrays.asList(
-                        new Organization.Position(LocalDate.of(2023, 9, 6), LocalDate.now(), "Инженер по тестированию ПО", null),
-                        new Organization.Position(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 9, 5), "Системный администратор", null),
-                        new Organization.Position(LocalDate.of(2020, 6, 1), LocalDate.of(2022, 12, 12), "Начальник отдела технического-контроля", null)
-                ))
-        )));
-
-        resume.setSection(SectionType.EDUCATION, new OrganizationSection(Arrays.asList(
-                new Organization("Российский университет дружбы народов", null, Arrays.asList(
-                        new Organization.Position(LocalDate.of(2012, 9, 1), LocalDate.of(2014, 7, 1), "Магистр (инженер)", null),
-                        new Organization.Position(LocalDate.of(2008, 9, 1), LocalDate.of(2012, 7, 1), "Бакалавр (инженер)", null)
-                ))
         )));
 
         return resume;
