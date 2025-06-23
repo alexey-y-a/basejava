@@ -6,6 +6,9 @@
     <artifactId>BaseJava</artifactId>
     <version>1.0-SNAPSHOT</version>
 
+    <!-- Изменено: Указываем упаковку как war вместо jar -->
+    <packaging>war</packaging>
+
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
@@ -90,6 +93,15 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.2.5</version>
+            </plugin>
+            <!-- Плагин для сборки WAR-файла -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.3.2</version>
+                <configuration>
+                    <warSourceDirectory>src/main/webapp</warSourceDirectory>
+                </configuration>
             </plugin>
         </plugins>
     </build>

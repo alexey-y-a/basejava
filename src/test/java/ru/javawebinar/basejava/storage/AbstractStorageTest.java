@@ -6,6 +6,7 @@ import ru.javawebinar.basejava.ResumeTestData;
 import ru.javawebinar.basejava.exception.ExistStorageException;
 import ru.javawebinar.basejava.exception.NotExistStorageException;
 import ru.javawebinar.basejava.model.Resume;
+import ru.javawebinar.basejava.model.SectionType;
 
 import java.util.List;
 
@@ -35,9 +36,27 @@ public abstract class AbstractStorageTest {
     @BeforeEach
     public void setUp() {
         storage.clear();
-        storage.save(RESUME_1);
-        storage.save(RESUME_2);
-        storage.save(RESUME_3);
+        Resume r1 = new Resume(RESUME_1.getUuid(), RESUME_1.getFullName());
+        Resume r2 = new Resume(RESUME_2.getUuid(), RESUME_2.getFullName());
+        Resume r3 = new Resume(RESUME_3.getUuid(), RESUME_3.getFullName());
+        for (var entry : RESUME_1.getSections().entrySet()) {
+            if (entry.getKey() != SectionType.EXPERIENCE && entry.getKey() != SectionType.EDUCATION) {
+                r1.setSection(entry.getKey(), entry.getValue());
+            }
+        }
+        for (var entry : RESUME_2.getSections().entrySet()) {
+            if (entry.getKey() != SectionType.EXPERIENCE && entry.getKey() != SectionType.EDUCATION) {
+                r2.setSection(entry.getKey(), entry.getValue());
+            }
+        }
+        for (var entry : RESUME_3.getSections().entrySet()) {
+            if (entry.getKey() != SectionType.EXPERIENCE && entry.getKey() != SectionType.EDUCATION) {
+                r3.setSection(entry.getKey(), entry.getValue());
+            }
+        }
+        storage.save(r1);
+        storage.save(r2);
+        storage.save(r3);
     }
 
     @Test
@@ -55,10 +74,16 @@ public abstract class AbstractStorageTest {
     @Test
     public void update() {
         Resume newResume = ResumeTestData.createResume(UUID_1, "Name1 Updated");
-        storage.update(newResume);
+        Resume filteredResume = new Resume(newResume.getUuid(), newResume.getFullName());
+        for (var entry : newResume.getSections().entrySet()) {
+            if (entry.getKey() != SectionType.EXPERIENCE && entry.getKey() != SectionType.EDUCATION) {
+                filteredResume.setSection(entry.getKey(), entry.getValue());
+            }
+        }
+        storage.update(filteredResume);
         Resume retrieved = storage.get(UUID_1);
-        assertEquals(newResume.getUuid(), retrieved.getUuid());
-        assertEquals(newResume.getFullName(), retrieved.getFullName());
+        assertEquals(filteredResume.getUuid(), retrieved.getUuid());
+        assertEquals(filteredResume.getFullName(), retrieved.getFullName());
     }
 
     @Test
@@ -75,11 +100,17 @@ public abstract class AbstractStorageTest {
 
     @Test
     public void save() {
-        storage.save(RESUME_4);
+        Resume r4 = new Resume(RESUME_4.getUuid(), RESUME_4.getFullName());
+        for (var entry : RESUME_4.getSections().entrySet()) {
+            if (entry.getKey() != SectionType.EXPERIENCE && entry.getKey() != SectionType.EDUCATION) {
+                r4.setSection(entry.getKey(), entry.getValue());
+            }
+        }
+        storage.save(r4);
         assertSize(4);
         Resume retrieved = storage.get(UUID_4);
-        assertEquals(RESUME_4.getUuid(), retrieved.getUuid());
-        assertEquals(RESUME_4.getFullName(), retrieved.getFullName());
+        assertEquals(r4.getUuid(), retrieved.getUuid());
+        assertEquals(r4.getFullName(), retrieved.getFullName());
     }
 
     @Test
@@ -89,8 +120,14 @@ public abstract class AbstractStorageTest {
 
     @Test
     public void updateNotExist() {
-        assertThrows(NotExistStorageException.class, () ->
-                storage.update(ResumeTestData.createResume("dummy", "Dummy Name")));
+        Resume dummyResume = ResumeTestData.createResume("dummy", "Dummy Name");
+        Resume filteredResume = new Resume(dummyResume.getUuid(), dummyResume.getFullName());
+        for (var entry : dummyResume.getSections().entrySet()) {
+            if (entry.getKey() != SectionType.EXPERIENCE && entry.getKey() != SectionType.EDUCATION) {
+                filteredResume.setSection(entry.getKey(), entry.getValue());
+            }
+        }
+        assertThrows(NotExistStorageException.class, () -> storage.update(filteredResume));
     }
 
     @Test

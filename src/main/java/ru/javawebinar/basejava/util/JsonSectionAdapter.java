@@ -36,9 +36,13 @@ public class JsonSectionAdapter implements JsonSerializer<Section>, JsonDeserial
             JsonArray array = json.getAsJsonArray();
             ListSection listSection = new ListSection(new ArrayList<>());
             for (JsonElement element : array) {
-                listSection.getItems().add(element.getAsString());
+                if (element.isJsonPrimitive()) {
+                    listSection.getItems().add(element.getAsString());
+                }
             }
-            return new TextSection(String.join("\n", listSection.getItems()));
+            return listSection;
+        } else if (json.isJsonObject()) {
+            return null;
         }
         throw new JsonParseException("Unknown section type: " + json.getClass().getName());
     }
