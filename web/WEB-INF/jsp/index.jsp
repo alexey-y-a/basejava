@@ -7,21 +7,26 @@
     <title>Курс JavaSE + Web</title>
 </head>
 <body>
-<header>Приложение вебинара <a href="http://javawebinar.ru/basejava/" target="_blank">Практика Java. Разработка Web приложения."</a></header>
+<jsp:include page="/WEB-INF/views/fragments/header.jsp"/>
 <h1>Курс JavaSE + Web</h1>
 <h2>${param.name == null ? 'Список резюме' : 'Привет, ' += param.name += '! Список резюме'}</h2>
+<a href="resume?action=add"><img src="../img/add.png" alt="Add"></a>
 <table border="1">
     <tr>
         <th>UUID</th>
         <th>Full Name</th>
+        <th></th>
+        <th></th>
     </tr>
     <c:forEach var="resume" items="${resumes}">
         <tr>
             <td>${resume.uuid}</td>
             <td>${resume.fullName}</td>
+            <td><a href="resume?uuid=${resume.uuid}&action=view"><img src="../img/view.png" alt="View"></a></td>
+            <td><a href="resume?uuid=${resume.uuid}&action=delete"><img src="../img/delete.png" alt="Delete"></a></td>
         </tr>
     </c:forEach>
 </table>
-<footer>Приложение вебинара <a href="http://javawebinar.ru/basejava/" target="_blank">Практика Java. Разработка Web приложения."</a></footer>
+<jsp:include page="/WEB-INF/views/fragments/footer.jsp"/>
 </body>
 </html>
