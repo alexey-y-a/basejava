@@ -73,17 +73,17 @@ public class ResumeServlet extends HttpServlet {
             return;
         }
 
-        Resume oldResume = uuid != null && !uuid.trim().isEmpty() ? storage.get(uuid) : null;
-        Resume r = new Resume(uuid == null || uuid.trim().isEmpty() ? "" : uuid, fullName);
-        if (oldResume != null) {
-            for (Map.Entry<ContactType, String> entry : oldResume.getContacts().entrySet()) {
+        Resume resume = uuid == null || uuid.trim().isEmpty() ? new Resume("", fullName) : storage.get(uuid);
+
+        if (uuid != null && !uuid.trim().isEmpty()) {
+            for (Map.Entry<ContactType, String> entry : storage.get(uuid).getContacts().entrySet()) {
                 if (request.getParameter(entry.getKey().name()) == null) {
-                    r.setContact(entry.getKey(), entry.getValue());
+                    resume.setContact(entry.getKey(), entry.getValue());
                 }
             }
-            for (Map.Entry<SectionType, Section> entry : oldResume.getSections().entrySet()) {
+            for (Map.Entry<SectionType, Section> entry : storage.get(uuid).getSections().entrySet()) {
                 if (request.getParameter(entry.getKey().name()) == null) {
-                    r.setSection(entry.getKey(), entry.getValue());
+                    resume.setSection(entry.getKey(), entry.getValue());
                 }
             }
         }
@@ -91,7 +91,7 @@ public class ResumeServlet extends HttpServlet {
         for (ContactType type : ContactType.values()) {
             String value = request.getParameter(type.name());
             if (value != null && !value.trim().isEmpty()) {
-                r.setContact(type, value.trim());
+                resume.setContact(type, value.trim());
             }
         }
 
@@ -101,35 +101,36 @@ public class ResumeServlet extends HttpServlet {
                 switch (type) {
                     case PERSONAL:
                     case OBJECTIVE:
-                        r.setSection(type, new TextSection(content.trim()));
+                        resume.setSection(type, new TextSection(content.trim()));
                         break;
                     case ACHIEVEMENT:
                     case QUALIFICATIONS:
                         List<String> items = new ArrayList<>();
-                        for (String item : content.split("\n")) {
+                        for (String item : content.split("\\r?\\n")) {
                             String trimmedItem = item.trim();
                             if (!trimmedItem.isEmpty()) {
                                 items.add(trimmedItem);
                             }
                         }
                         if (!items.isEmpty()) {
-                            r.setSection(type, new ListSection(items));
+                            resume.setSection(type, new ListSection(items));
                         }
                         break;
                     case EXPERIENCE:
                     case EDUCATION:
                         break;
                 }
+            } else {
+                resume.setSection(type, null);
             }
         }
 
         if (uuid == null || uuid.trim().isEmpty()) {
-            storage.save(r);
+            storage.save(resume);
         } else {
-            storage.update(r);
+            storage.update(resume);
         }
         response.sendRedirect("resume");
     }
-
 
 }

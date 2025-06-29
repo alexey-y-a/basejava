@@ -17,17 +17,18 @@
         <input type="hidden" name="uuid" value="${resume.uuid}">
         <dl>
             <dt>Имя:</dt>
-            <dd><input type="text" name="fullName" size=50 value="${resume.fullName}"></dd>
+            <dd><input type="text" name="fullName" size="50" value="${resume.fullName}" required pattern="^[A-Za-zА-Яа-яЁё\s-]{2,50}$"></dd>
+            <!-- --> Атрибуты required и pattern уже добавлены -->
         </dl>
         <c:forEach var="type" items="${resume.contacts.keySet()}">
             <dl>
                 <dt>${type.title}</dt>
-                <dd><input type="text" name="${type}" size=50 value="${resume.getContact(type)}"></dd>
+                <dd><input type="text" name="${type}" size="50" value="${resume.getContact(type)}"></dd>
             </dl>
         </c:forEach>
         <c:forEach var="type" items="${resume.sections.keySet()}">
             <c:set var="section" value="${resume.getSection(type)}"/>
-            <c:if test="${not empty section && (type != 'EXPERIENCE' && type != 'EDUCATION')}">
+            <c:if test="${not empty section}">
                 <h3>${type.title}</h3>
                 <c:choose>
                     <c:when test="${type == 'PERSONAL' || type == 'OBJECTIVE'}">
@@ -35,6 +36,11 @@
                     </c:when>
                     <c:when test="${type == 'ACHIEVEMENT' || type == 'QUALIFICATIONS'}">
                         <textarea name="${type}" rows="5" cols="50"><c:forEach var="item" items="${section.items}">${item}\n</c:forEach></textarea>
+                    </c:when>
+                    <c:when test="${type == 'EXPERIENCE' || type == 'EDUCATION'}">
+                        <!-- --> Placeholder для будущей реализации
+                        <p>Редактирование этой секции пока не поддерживается.</p>
+                        <textarea name="${type}" rows="5" cols="50" disabled>Только для отображения</textarea>
                     </c:when>
                 </c:choose>
             </c:if>
