@@ -9,6 +9,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +44,15 @@ public class ResumeServlet extends HttpServlet {
                 break;
             case "edit":
                 r = storage.get(uuid);
+                for (SectionType type : new SectionType[]{SectionType.EXPERIENCE, SectionType.EDUCATION}) {
+                    OrganizationSection section = (OrganizationSection) r.getSection(type);
+                    List<Organization> orgs = new ArrayList<>();
+                    orgs.add(new Organization("", "", new ArrayList<>()));
+                    if (section != null) {
+                        orgs.addAll(section.getOrganizations());
+                    }
+                    r.setSection(type, new OrganizationSection(orgs));
+                }
                 request.setAttribute("resume", r);
                 request.getRequestDispatcher("/WEB-INF/views/edit.jsp").forward(request, response);
                 break;
@@ -92,6 +103,8 @@ public class ResumeServlet extends HttpServlet {
             String value = request.getParameter(type.name());
             if (value != null && !value.trim().isEmpty()) {
                 resume.setContact(type, value.trim());
+            } else {
+                resume.setContact(type, null);
             }
         }
 
@@ -118,6 +131,33 @@ public class ResumeServlet extends HttpServlet {
                         break;
                     case EXPERIENCE:
                     case EDUCATION:
+                        List<Organization> organizations = new ArrayList<>();
+                        int orgIndex = 0;
+                        String orgName;
+                        while ((orgName = request.getParameter(type.name() + orgIndex + ".name")) != null && !orgName.trim().isEmpty()) {
+                            String orgUrl = request.getParameter(type.name() + orgIndex + ".url");
+                            List<Organization.Position> positions = new ArrayList<>();
+                            int posIndex = 0;
+                            String posTitle;
+                            while ((posTitle = request.getParameter(type.name() + orgIndex + ".position" + posIndex + ".title")) != null && !posTitle.trim().isEmpty()) {
+                                String startDateStr = request.getParameter(type.name() + orgIndex + ".position" + posIndex + ".startDate");
+                                String endDateStr = request.getParameter(type.name() + orgIndex + ".position" + posIndex + ".endDate");
+                                String description = request.getParameter(type.name() + orgIndex + ".position" + posIndex + ".description");
+                                LocalDate startDate = parseDate(startDateStr);
+                                LocalDate endDate = parseDate(endDateStr);
+                                if (startDate != null && endDate != null) {
+                                    positions.add(new Organization.Position(startDate, endDate, posTitle, description));
+                                }
+                                posIndex++;
+                            }
+                            if (!positions.isEmpty()) {
+                                organizations.add(new Organization(orgName.trim(), orgUrl, positions));
+                            }
+                            orgIndex++;
+                        }
+                        if (!organizations.isEmpty()) {
+                            resume.setSection(type, new OrganizationSection(organizations));
+                        }
                         break;
                 }
             } else {
@@ -133,4 +173,13 @@ public class ResumeServlet extends HttpServlet {
         response.sendRedirect("resume");
     }
 
+    private LocalDate parseDate(String dateStr) {
+        if (dateStr == null || dateStr.trim().isEmpty()) return null;
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/yyyy");
+            return LocalDate.parse(dateStr + "/01", formatter);
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }
