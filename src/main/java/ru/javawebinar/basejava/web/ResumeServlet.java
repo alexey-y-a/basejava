@@ -39,22 +39,30 @@ public class ResumeServlet extends HttpServlet {
         switch (action) {
             case "view":
                 r = storage.get(uuid);
-                request.setAttribute("resume", r);
-                request.getRequestDispatcher("/WEB-INF/views/view.jsp").forward(request, response);
+                if (r != null) {
+                    request.setAttribute("resume", r);
+                    request.getRequestDispatcher("/WEB-INF/views/view.jsp").forward(request, response);
+                } else {
+                    response.sendError(HttpServletResponse.SC_NOT_FOUND, "Резюме с UUID " + uuid + " не найдено");
+                }
                 break;
             case "edit":
                 r = storage.get(uuid);
-                for (SectionType type : new SectionType[]{SectionType.EXPERIENCE, SectionType.EDUCATION}) {
-                    OrganizationSection section = (OrganizationSection) r.getSection(type);
-                    List<Organization> orgs = new ArrayList<>();
-                    orgs.add(new Organization("", "", new ArrayList<>()));
-                    if (section != null) {
-                        orgs.addAll(section.getOrganizations());
+                if (r != null) {
+                    for (SectionType type : new SectionType[]{SectionType.EXPERIENCE, SectionType.EDUCATION}) {
+                        OrganizationSection section = (OrganizationSection) r.getSection(type);
+                        List<Organization> orgs = new ArrayList<>();
+                        orgs.add(new Organization("", "", new ArrayList<>()));
+                        if (section != null) {
+                            orgs.addAll(section.getOrganizations());
+                        }
+                        r.setSection(type, new OrganizationSection(orgs));
                     }
-                    r.setSection(type, new OrganizationSection(orgs));
+                    request.setAttribute("resume", r);
+                    request.getRequestDispatcher("/WEB-INF/views/edit.jsp").forward(request, response);
+                } else {
+                    response.sendError(HttpServletResponse.SC_NOT_FOUND, "Резюме с UUID " + uuid + " не найдено");
                 }
-                request.setAttribute("resume", r);
-                request.getRequestDispatcher("/WEB-INF/views/edit.jsp").forward(request, response);
                 break;
             case "add":
                 r = new Resume("", "");

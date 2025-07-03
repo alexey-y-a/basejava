@@ -6,7 +6,6 @@
     <artifactId>BaseJava</artifactId>
     <version>1.0-SNAPSHOT</version>
 
-    <!-- Изменено: Указываем упаковку как war вместо jar -->
     <packaging>war</packaging>
 
     <properties>
@@ -20,7 +19,7 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.2.1</version>
+            <version>42.7.4</version>
         </dependency>
         <!-- JUnit 5 для тестов -->
         <dependency>
@@ -35,14 +34,14 @@
             <version>5.10.2</version>
             <scope>test</scope>
         </dependency>
-        <!-- JUnit Platform Suite API для @Suite и @SelectClasses -->
+        <!-- JUnit Platform Suite API -->
         <dependency>
             <groupId>org.junit.platform</groupId>
             <artifactId>junit-platform-suite-api</artifactId>
             <version>1.10.2</version>
             <scope>test</scope>
         </dependency>
-        <!-- Jackson для работы с JSON -->
+        <!-- Jackson для JSON -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
@@ -72,8 +71,12 @@
             <artifactId>gson</artifactId>
             <version>2.10.1</version>
         </dependency>
-        <!--   -->
-
+        <!-- JSTL для JSP -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>jstl</artifactId>
+            <version>1.2</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -100,7 +103,7 @@
                 <artifactId>maven-war-plugin</artifactId>
                 <version>3.3.2</version>
                 <configuration>
-                    <warSourceDirectory>web</warSourceDirectory>
+                    <warSourceDirectory>src/main/webapp</warSourceDirectory>
                 </configuration>
             </plugin>
         </plugins>
